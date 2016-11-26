@@ -135,6 +135,7 @@ def check_dep(ctx, pkg, uselib, version, mandatory=True, store=None, vala_def=No
 def options(ctx):
 	ctx.load('compiler_c vala')
 	ctx.add_option('--with-unity', action='store_true', default=False, dest='unity', help="Build functionality dependent on libunity")
+	ctx.add_option('--with-appindicator', action='store_true', default=False, dest='appindicator', help="Build functionality dependent on libappindicator")
 	ctx.add_option('--noopt', action='store_true', default=False, dest='noopt', help="Turn off compiler optimizations")
 	ctx.add_option('--debug', action='store_true', default=True, dest='debug', help="Turn on debugging symbols")
 	ctx.add_option('--no-debug', action='store_false', dest='debug', help="Turn off debugging symbols")
@@ -241,6 +242,11 @@ def configure(ctx):
 		ctx.check_dep('dbusmenu-glib-0.4', 'DBUSMENU', '0.4')
 		ctx.vala_def("UNITY")
 	
+	ctx.env.with_appindicator = ctx.options.appindicator
+	if ctx.options.appindicator:
+		ctx.check_dep('appindicator3-0.1', 'APPINDICATOR', '0.4')
+		ctx.vala_def("APPINDICATOR")
+		
 	if VERSION_SUFFIX != "stable":
 		ctx.vala_def("EXPERIMENTAL")
 		
@@ -301,6 +307,9 @@ def build(ctx):
 		packages += " unity Dbusmenu-0.4"
 		uselib += " UNITY DBUSMENU"
 	
+	if ctx.env.with_appindicator:
+		packages += " appindicator3-0.1"
+		uselib += " APPINDICATOR"
 	
 	ctx(features = "c cshlib",
 		target = ENGINEIO,
